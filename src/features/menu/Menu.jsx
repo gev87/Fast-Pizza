@@ -7,6 +7,7 @@ function Menu() {
   return <ul>{menu.map((pizza) => <MenuItem pizza={pizza} key={pizza.id} />)}</ul>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export async function loader() {
   const menu = await getMenu();
   return menu;
