@@ -9,7 +9,6 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addItem(state, action) {
-      console.log('Adding item to cart', action.payload, state.cart);
       // payload= newItem
       const item = state.cart.find(
         (item) => item.pizzaId === action.payload.pizzaId,
@@ -57,13 +56,14 @@ export const {
   deleteItem,
   increaseItemQuantity,
   decreaseItemQuantity,
+  clearCart
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
 
-export const selectCart = (state) => state.cart.cart;
+export const getCart = (state) => state.cart.cart;
 
-export const selectCartTotals = createSelector([selectCart], (cart) =>
+export const selectCartTotals = createSelector([getCart], (cart) =>
   cart.reduce(
     (totals, item) => {
       totals.totalQuantity += item.quantity;
@@ -73,3 +73,9 @@ export const selectCartTotals = createSelector([selectCart], (cart) =>
     { totalQuantity: 0, totalPrice: 0 },
   ),
 );
+
+export const getCartItemQuantityById = (pizzaId) =>
+  createSelector([getCart], (cart) => {
+    const item = cart.find((item) => item.pizzaId === pizzaId);
+    return item ? item.quantity : 0;
+  });
