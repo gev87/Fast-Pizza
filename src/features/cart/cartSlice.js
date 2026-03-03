@@ -67,10 +67,10 @@ export const selectCartTotals = createSelector([getCart], (cart) =>
   cart.reduce(
     (totals, item) => {
       totals.totalQuantity += item.quantity;
-      totals.totalPrice += item.totalPrice;
+      totals.totalCartPrice += item.totalPrice;
       return totals;
     },
-    { totalQuantity: 0, totalPrice: 0 },
+    { totalQuantity: 0, totalCartPrice: 0 },
   ),
 );
 

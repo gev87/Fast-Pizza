@@ -1,6 +1,6 @@
 // Test ID: IIDSAT
 
-import { useLoaderData, useParams, useSearchParams } from 'react-router-dom';
+import { useLoaderData} from 'react-router-dom';
 import {
   calcMinutesLeft,
   formatCurrency,
