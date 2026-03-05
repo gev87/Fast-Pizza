@@ -21,22 +21,26 @@ function CreateOrder() {
   const isSubmitting = navigation.state === 'submitting';
   const [withPriority, setWithPriority] = useState(false);
   const { totalCartPrice } = useSelector(selectCartTotals);
-  const dispatch= useDispatch();
+  const dispatch = useDispatch();
 
-  const totalPrice =  totalCartPrice + (withPriority ? 0.2 * totalCartPrice : 0);
+  const totalPrice = totalCartPrice + (withPriority ? 0.2 * totalCartPrice : 0);
   const cart = useSelector(getCart);
-  const username = useSelector((state) => state.user.username);
+  const {
+    username,
+    status: addressStatus,
+    position,
+    address,
+    error: errorAddress,
+  } = useSelector((state) => state.user);
 
+  const isLoadingAddress = addressStatus === 'loading';
 
   if (cart.length === 0) return <EmptyCart />;
 
   return (
     <div className="px-4 py-6">
-      <h2 className="mb-8 text-xl font-semibold">
-        Ready to order? Let&aposs go!
-      </h2>
-      <button onClick={() => dispatch(fetchAddress())}>
-Get position </button>
+      <h2 className="mb-8 text-xl font-semibold">Ready to order? Lets go!</h2>
+
       {/* <Form method="Post" action="/order/new">  the same as the row below */}
       <Form method="Post">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -64,13 +68,34 @@ Get position </button>
 
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">Address</label>
-          <div className="grow">
+          <div className="relative grow">
             <input
               type="text"
               name="address"
               required
+              disabled={isLoadingAddress}
+              defaultValue={address}
               className="input w-full"
             />
+            {addressStatus === 'error' && (
+              <p className="mt-2 rounded bg-red-100 p-2 text-xs text-red-700">
+                {errorAddress}
+              </p>
+            )}
+            {!position.latitude && !position.longitude && (
+              <span className="absolute top-0.75 right-0.75">
+                <Button
+                  type="small"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    dispatch(fetchAddress());
+                  }}
+                  disabled={isLoadingAddress}
+                >
+                  Get position{' '}
+                </Button>
+              </span>
+            )}
           </div>
         </div>
 
@@ -90,8 +115,17 @@ Get position </button>
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          <input
+            type="hidden"
+            name="position"
+            value={
+              position.longitude && position.latitude
+                ? `${position.latitude},${position.longitude}`
+                : ''
+            }
+          />
           <Button type="primary" disabled={isSubmitting}>
-            {isSubmitting
+            {isSubmitting || isLoadingAddress
               ? 'Placing order...'
               : `Order now from ${formatCurrency(totalPrice)}`}
           </Button>
@@ -124,7 +158,6 @@ export async function action({ request }) {
   // do not overuse
   store.dispatch(clearCart());
 
-  return redirect(`/order/${newOrder.id}`);
-}
+  return redirect(`/order/${newOrder.id}`);}
 
 export default CreateOrder;
