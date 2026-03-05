@@ -1,12 +1,13 @@
 import { Form, redirect, useActionData, useNavigation } from 'react-router-dom';
 import { createOrder } from '../../services/apiRestaurant';
 import Button from '../../ui/Button';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearCart, getCart, selectCartTotals } from '../cart/cartSlice';
 import EmptyCart from '../cart/EmptyCart';
 import store from '../../store';
 import { formatCurrency } from '../../utils/helpers';
 import { useState } from 'react';
+import { fetchAddress } from '../user/userSlice';
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -20,6 +21,7 @@ function CreateOrder() {
   const isSubmitting = navigation.state === 'submitting';
   const [withPriority, setWithPriority] = useState(false);
   const { totalCartPrice } = useSelector(selectCartTotals);
+  const dispatch= useDispatch();
 
   const totalPrice =  totalCartPrice + (withPriority ? 0.2 * totalCartPrice : 0);
   const cart = useSelector(getCart);
@@ -33,6 +35,8 @@ function CreateOrder() {
       <h2 className="mb-8 text-xl font-semibold">
         Ready to order? Let&aposs go!
       </h2>
+      <button onClick={() => dispatch(fetchAddress())}>
+Get position </button>
       {/* <Form method="Post" action="/order/new">  the same as the row below */}
       <Form method="Post">
         <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
