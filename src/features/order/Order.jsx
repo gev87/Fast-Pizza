@@ -1,6 +1,6 @@
 // Test ID: IIDSAT
 
-import { useLoaderData} from 'react-router-dom';
+import { useFetcher, useLoaderData } from 'react-router-dom';
 import {
   calcMinutesLeft,
   formatCurrency,
@@ -9,9 +9,11 @@ import {
 import { getOrder } from '../../services/apiRestaurant';
 
 import OrderItem from './OrderItem.jsx';
+import { useEffect } from 'react';
 
 function Order() {
   const order = useLoaderData();
+  const fetcher = useFetcher();
   // Everyone can search for all orders, so for privacy reasons we're gonna exclude names or address, these are only for the restaurant staff
   const {
     id,
@@ -23,6 +25,10 @@ function Order() {
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
+
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state === 'idle') fetcher.load('/menu');
+  }, [fetcher]);
 
   return (
     <div className="space-y-8 px-4 py-6">
@@ -54,7 +60,12 @@ function Order() {
 
       <ul className="divide-y divide-stone-200 border-t border-b">
         {cart.map((item) => (
-          <OrderItem key={item.pizzaId} item={item} />
+          <OrderItem
+            key={item.pizzaId}
+            item={item}
+            ingredients={fetcher.data?.find((el) => el.id === item.pizzaId).ingredients}
+            isLoadingIngredients={fetcher.state === 'loading'}
+          />
         ))}
       </ul>
 
