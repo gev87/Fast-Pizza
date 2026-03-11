@@ -10,6 +10,7 @@ import { getOrder } from '../../services/apiRestaurant';
 
 import OrderItem from './OrderItem.jsx';
 import { useEffect } from 'react';
+import UpdateOrder from './UpdateOrder.jsx';
 
 function Order() {
   const order = useLoaderData();
@@ -63,7 +64,9 @@ function Order() {
           <OrderItem
             key={item.pizzaId}
             item={item}
-            ingredients={fetcher.data?.find((el) => el.id === item.pizzaId).ingredients}
+            ingredients={
+              fetcher.data?.find((el) => el.id === item.pizzaId).ingredients
+            }
             isLoadingIngredients={fetcher.state === 'loading'}
           />
         ))}
@@ -80,10 +83,12 @@ function Order() {
         )}
         <p>To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}</p>
       </div>
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export async function loader({ params }) {
   const order = await getOrder(params.orderId);
   return order;
